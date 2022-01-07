@@ -1,8 +1,11 @@
-use reqwest::blocking::Response;
-use reqwest::{blocking};
-use std::{thread};
+use std::collections::HashMap;
+use std::thread;
 use std::time::Duration;
-use serde::{Serialize, Deserialize};
+
+use reqwest::blocking;
+use reqwest::blocking::Response;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Coin {
@@ -16,7 +19,6 @@ fn main() {
 
     loop {
         get_crypto_rates();
-
         thread::sleep(Duration::from_secs(60));
     }
 }
@@ -48,5 +50,39 @@ fn handle_response(response: Response) {
 }
 
 fn publish_rates(coins: Vec<Coin>) {
+    let request_url = format!("http://sensor-relay.int.mindphaser.se/publish");
+//    let request_url = format!("http://localhost:8967/publish");
 
+    let mut request_body = HashMap::<String, String>::new();
+
+    let bitcoin = coins.iter()
+        .find(|c| { c.id == "bitcoin" });
+
+    if bitcoin.is_some() {
+        request_body.insert("bitcoin_price".to_string(), format!("{}", bitcoin.unwrap().current_price));
+    }
+
+    let ethereum = coins.iter()
+        .find(|c| { c.id == "ethereum" });
+
+    if ethereum.is_some() {
+        request_body.insert("ethereum_price".to_string(), format!("{}", ethereum.unwrap().current_price));
+    }
+
+    let body = json!({
+            "reporter": "crypto-publisher",
+            "sensors": request_body,
+            "topic": "sensors"
+        });
+
+    let post_response = blocking::Client::new()
+        .post(request_url)
+        .json(&body)
+        .send();
+
+    if post_response.is_err() {
+        println!("Failed to send update to server: {}", post_response.unwrap_err())
+    } else {
+        println!("Published rates OK {:?}", request_body);
+    }
 }
