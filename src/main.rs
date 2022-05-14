@@ -24,7 +24,7 @@ fn main() {
 }
 
 fn get_crypto_rates() {
-    let request_url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum,bitcoin";
+    let request_url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum,bitcoin,terra-luna";
 
     let response = blocking::Client::new()
         .get(request_url)
