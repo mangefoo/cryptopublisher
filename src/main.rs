@@ -72,7 +72,7 @@ fn publish_rates(coins: Vec<Coin>) {
     let luna = coins.iter()
         .find(|c| { c.id == "terra-luna" });
     if luna.is_some() {
-        request_body.insert("luna_price".to_string(), format!("{}", ethereum.unwrap().current_price));
+        request_body.insert("luna_price".to_string(), format!("{}", luna.unwrap().current_price));
     }
 
     let body = json!({
