@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crypto-publisher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crypto-publisher
+  template:
+    metadata:
+      labels:
+        app: crypto-publisher
+    spec:
+      containers:
+      - name: crypto-publisher-container
+        image: $DOCKER_IMAGE
+        imagePullPolicy: Always
